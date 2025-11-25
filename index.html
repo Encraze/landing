@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>qult · Terminal Landing</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div class="background-layer" aria-hidden="true">
+      <div class="logo-satellite">
+        <img src="assets/logo.jpg" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="particle-field"></div>
+    </div>
+    <main id="app" class="app-shell">
+      <section class="boot-sequence" id="boot-sequence" aria-live="polite">
+        <pre class="boot-log" id="boot-log"></pre>
+      </section>
+
+      <section class="terminal hidden" id="terminal" aria-live="polite">
+        <div class="terminal-output" id="terminal-output"></div>
+
+        <form class="terminal-input" id="terminal-form" autocomplete="off">
+          <label class="prompt-label" for="terminal-command">user@qult:></label>
+          <div class="input-wrapper">
+            <span
+              class="input-suggestion"
+              id="input-suggestion"
+              aria-hidden="true"
+            ></span>
+            <input
+              id="terminal-command"
+              name="command"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="none"
+              enterkeyhint="send"
+              aria-label="Terminal command input"
+            />
+          </div>
+        </form>
+      </section>
+    </main>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
