@@ -54,19 +54,16 @@ main.app-shell {
 
 .logo-satellite {
   position: absolute;
-  top: -10%;
-  left: -10%;
   width: clamp(180px, 22vw, 280px);
   opacity: 0.08;
-  animation: orbit 48s linear infinite;
 }
 
 .logo-satellite img {
-  width: 100%;
+  width: 400%;
   height: auto;
   mix-blend-mode: screen;
   filter: grayscale(0.2) contrast(1.2) brightness(1.1);
-  animation: spin 32s linear infinite;
+  animation: spin 64s linear infinite;
 }
 
 .particle-field {
@@ -130,6 +127,12 @@ main.app-shell {
   pointer-events: auto;
 }
 
+.terminal-heading {
+  font-size: 1.8rem; /* same as h2 */
+  font-weight: 700;
+  margin: 0;
+}
+
 .terminal-output {
   flex: 1;
   min-height: 0;
@@ -182,10 +185,11 @@ main.app-shell {
 }
 
 code {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.50);
+  color: #776af0;
   padding: 0.1rem 0.35rem;
   border-radius: 0.25rem;
-  font-size: 0.95em;
+  font-size: 1.15em;
 }
 
 .content-block {

@@ -79,6 +79,8 @@ const BOOT_LINE_POOL = [
 
 const BOOT_LINE_END = ':: boot complete — handing off control.';
 
+const EDGE_OPTIONS = ['top', 'right', 'bottom', 'left'];
+
 function escapeHTML(value = '') {
   return value.replace(/[&<>"']/g, (char) => {
     const entities = {
@@ -175,7 +177,7 @@ class TerminalLanding {
     requestAnimationFrame(() => {
       this.refs.terminal?.classList.add('is-active');
     });
-    this.appendOutputBlock('<p>Initializing terminal session…</p>');
+    this.appendOutputBlock('<p class="terminal-heading">The rift is calling you…</p>');
     this.loadMotd();
     this.bindInput();
     this.focusInput();
@@ -666,11 +668,87 @@ class TerminalLanding {
   }
 }
 
+class LogoDrifter {
+  constructor(node) {
+    this.node = node;
+    this.currentEdge = null;
+    this.timeout = null;
+    if (this.node) {
+      this.init();
+    }
+  }
+
+  init() {
+    this.currentEdge = this.randomEdge();
+    const startPos = this.positionForEdge(this.currentEdge);
+    this.applyPosition(startPos, true);
+    requestAnimationFrame(() => this.scheduleNextHop());
+  }
+
+  scheduleNextHop() {
+    const nextEdge = this.pickNextEdge();
+    const targetPos = this.positionForEdge(nextEdge);
+    const travelMs = this.randomBetween(6000, 9000);
+    requestAnimationFrame(() => {
+      this.node.style.transition = `transform ${travelMs}ms linear`;
+      this.node.style.transform = this.buildTransform(targetPos);
+    });
+    this.timeout = setTimeout(() => {
+      this.currentEdge = nextEdge;
+      this.scheduleNextHop();
+    }, travelMs + this.randomBetween(500, 1500));
+  }
+
+  pickNextEdge() {
+    const options = EDGE_OPTIONS.filter((edge) => edge !== this.currentEdge);
+    return options[this.randomBetween(0, options.length - 1)];
+  }
+
+  positionForEdge(edge) {
+    const range = (min, max) => this.randomBetween(min, max);
+    switch (edge) {
+      case 'top':
+        return { x: range(-10, 110), y: -55 };
+      case 'bottom':
+        return { x: range(-10, 110), y: 105 };
+      case 'left':
+        return { x: -55, y: range(-10, 110) };
+      case 'right':
+      default:
+        return { x: 105, y: range(-10, 110) };
+    }
+  }
+
+  applyPosition(pos, immediate = false) {
+    if (immediate) {
+      this.node.style.transition = 'none';
+    }
+    this.node.style.transform = this.buildTransform(pos);
+  }
+
+  buildTransform(pos) {
+    return `translate(${pos.x}vw, ${pos.y}vh)`;
+  }
+
+  randomBetween(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  randomEdge() {
+    return EDGE_OPTIONS[this.randomBetween(0, EDGE_OPTIONS.length - 1)];
+  }
+}
+
 function init() {
   const appRoot = document.getElementById('app');
-  if (!appRoot) return;
-  const landing = new TerminalLanding(appRoot);
-  landing.init();
+  if (appRoot) {
+    const landing = new TerminalLanding(appRoot);
+    landing.init();
+  }
+  const logo = document.querySelector('.logo-satellite');
+  if (logo) {
+    new LogoDrifter(logo);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
