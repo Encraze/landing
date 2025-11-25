@@ -220,6 +220,7 @@ class TerminalLanding {
     this.historyIndex = this.history.length;
     this.refs.input.value = '';
     this.clearSuggestion();
+    await this.delay(300);
     await this.routeCommand(trimmed);
   }
 
@@ -359,7 +360,7 @@ class TerminalLanding {
   }
 
   appendOutputBlock(html, options = {}) {
-    if (!this.refs.output) return;
+    if (!this.refs.output) return null;
     const block = document.createElement('article');
     block.className = 'output-block';
     if (options.variant) {
@@ -367,7 +368,10 @@ class TerminalLanding {
     }
     block.innerHTML = html;
     this.refs.output.appendChild(block);
-    this.refs.output.scrollTop = this.refs.output.scrollHeight;
+    if (options.autoScroll !== false) {
+      this.scrollToBottom();
+    }
+    return block;
   }
 
   appendSystemMessage(html) {
@@ -464,7 +468,21 @@ class TerminalLanding {
         <figcaption>Random cat via cataas.com</figcaption>
       </figure>
     `;
-    this.appendOutputBlock(html);
+    const block = this.appendOutputBlock(html);
+    const img = block?.querySelector('img');
+    if (img) {
+      if (img.complete) {
+        this.scrollToBottom();
+      } else {
+        img.addEventListener(
+          'load',
+          () => {
+            this.scrollToBottom();
+          },
+          { once: true },
+        );
+      }
+    }
   }
 
   buildHelpMarkup() {
@@ -605,6 +623,17 @@ class TerminalLanding {
     if (!matches.length) return '';
     if (matches.length === 1) return matches[0];
     return this.commonPrefix(matches);
+  }
+
+  delay(duration) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, duration);
+    });
+  }
+
+  scrollToBottom() {
+    if (!this.refs.output) return;
+    this.refs.output.scrollTop = this.refs.output.scrollHeight;
   }
 
   async loadFragment(path) {
