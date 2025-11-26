@@ -63,7 +63,7 @@ main.app-shell {
   height: auto;
   mix-blend-mode: screen;
   filter: grayscale(0.2) contrast(1.2) brightness(1.1);
-  animation: spin 64s linear infinite;
+  animation: spin 200s linear infinite;
 }
 
 .particle-field {
@@ -81,7 +81,7 @@ main.app-shell {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   background: rgba(4, 5, 7, 0.52);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
 }
 

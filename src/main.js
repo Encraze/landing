@@ -466,8 +466,8 @@ class TerminalLanding {
     const catUrl = `https://cataas.com/cat?ts=${Date.now()}`;
     const html = `
       <figure class="cat-block">
-        <img src="${catUrl}" alt="Random cat from cataas.com" loading="lazy" />
-        <figcaption>Random cat via cataas.com</figcaption>
+        <img src="${catUrl}" alt="Here's a cat for you" loading="lazy" />
+        <figcaption>Here's a cat for you</figcaption>
       </figure>
     `;
     const block = this.appendOutputBlock(html);
@@ -497,7 +497,7 @@ class TerminalLanding {
           <li><code>about</code> · <code>highlights</code> · <code>services</code> · <code>cases</code> · <code>contact</code> · <code>creds</code> — load overview panels</li>
           <li><code>svc &lt;name&gt;</code> — open a specific service detail</li>
           <li><code>case &lt;name&gt;</code> — open a case study</li>
-          <li><code>cat</code> — fetch a random cat from cataas.com</li>
+          <li><code>cat</code> — a cat is a cat</li>
           <li><code>ai</code> — future AI assistant (coming soon)</li>
         </ul>
         <p class="muted">Tip: press Tab to autocomplete and use ↑/↓ for history.</p>
@@ -688,7 +688,7 @@ class LogoDrifter {
   scheduleNextHop() {
     const nextEdge = this.pickNextEdge();
     const targetPos = this.positionForEdge(nextEdge);
-    const travelMs = this.randomBetween(6000, 9000);
+    const travelMs = this.randomBetween(90000, 120000);
     requestAnimationFrame(() => {
       this.node.style.transition = `transform ${travelMs}ms linear`;
       this.node.style.transform = this.buildTransform(targetPos);
