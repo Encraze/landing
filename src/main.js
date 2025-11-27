@@ -420,7 +420,10 @@ class TerminalLanding {
     }
     block.innerHTML = html;
     this.refs.output.appendChild(block);
-    if (options.autoScroll !== false) {
+    // Only auto-scroll if explicitly requested or if no images are present
+    // (images will trigger scroll via waitForImagesAndScroll)
+    const hasImages = block.querySelectorAll('img').length > 0;
+    if (options.autoScroll !== false && !hasImages) {
       this.scrollToBottom();
     }
     return block;
@@ -542,7 +545,8 @@ class TerminalLanding {
     if (html.includes('<hr')) {
       this.renderPagedBlock(html);
     } else {
-      this.appendOutputBlock(html);
+      const block = this.appendOutputBlock(html);
+      this.waitForImagesAndScroll(block);
     }
   }
 
@@ -606,6 +610,7 @@ class TerminalLanding {
     }
 
     this.scrollToBottom();
+    this.waitForImagesAndScroll(block);
 
     const prevBtn = nav.querySelector('[data-role="prev"]');
     const nextBtn = nav.querySelector('[data-role="next"]');
@@ -862,6 +867,33 @@ class TerminalLanding {
     this.refs.output.scrollTop = this.refs.output.scrollHeight;
   }
 
+  waitForImagesAndScroll(block) {
+    if (!block) return;
+    const images = block.querySelectorAll('img');
+    if (images.length === 0) {
+      this.scrollToBottom();
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalImages = images.length;
+    const checkAndScroll = () => {
+      loadedCount += 1;
+      if (loadedCount >= totalImages) {
+        this.scrollToBottom();
+      }
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        checkAndScroll();
+      } else {
+        img.addEventListener('load', checkAndScroll, { once: true });
+        img.addEventListener('error', checkAndScroll, { once: true });
+      }
+    });
+  }
+
   async loadFragment(path) {
     const response = await fetch(`${path}?t=${Date.now()}`, {
       cache: 'no-store',
@@ -929,20 +961,8 @@ class LogoDrifter {
   }
 
   positionForEdge(edge) {
-    // Helper for decimal ranges
     const rangeDecimal = (min, max) => Math.random() * (max - min) + min;
     const rangeInt = (min, max) => this.randomBetween(min, max);
-    // switch (edge) {
-    //   case 'top':
-    //     return { x: rangeInt(-50, 50), y: rangeDecimal(-80, -50) };
-    //   case 'bottom':
-    //     return { x: rangeInt(0, 100), y: rangeDecimal(50, 66) };
-    //   case 'left':
-    //     return { x: rangeDecimal(-22, 0), y: rangeInt(-20, 80) };
-    //   case 'right':
-    //   default:
-    //     return { x: rangeDecimal(30, 46), y: rangeInt(-20, 80) };
-    // }
     switch (edge) {
       case 'top':
         return { x: rangeInt(-40, 50), y: rangeDecimal(-120, -100) };

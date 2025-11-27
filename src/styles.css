@@ -9,11 +9,19 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('../assets/fonts/SourceCodeVF-Upright.otf.woff2') format('woff2'),
+       url('../assets/fonts/SourceCodeVF-Upright.otf.woff') format('woff');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: Consolas, 'SFMono-Regular', 'Source Code Pro', 'Roboto Mono',
-    Menlo, Monaco, monospace;
+  font-family: 'Source Code Pro', 'Space Mono', Consolas, 'SFMono-Regular', 'Roboto Mono', Menlo, Monaco, monospace;
   background-color: var(--bg);
   color: var(--fg);
   background-image:
