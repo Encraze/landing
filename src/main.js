@@ -9,8 +9,6 @@ const SELECTORS = {
 };
 
 const MOTD_PATH = 'content/motd.html';
-const PROMPT_LABEL = 'nobody@qult>';
-
 const SIMPLE_CONTENT_COMMANDS = {
   about: 'content/about.html',
   highlights: 'content/highlights.html',
@@ -49,6 +47,8 @@ const AUTOCOMPLETE_COMMANDS = Array.from(
     'ai',
     'su',
     'sudo',
+    'name',
+    'whoami',
   ]),
 );
 
@@ -119,6 +119,7 @@ class TerminalLanding {
     this.activePagedBlock = null;
     this.pageNavIndex = 0;
     this.pageNavCount = 0;
+    this.currentUser = 'nobody';
     this.handlers = {
       submit: this.handleSubmit.bind(this),
       keydown: this.handleKeyDown.bind(this),
@@ -144,6 +145,8 @@ class TerminalLanding {
     this.refs.form = document.getElementById(SELECTORS.form);
     this.refs.input = document.getElementById(SELECTORS.input);
     this.refs.suggestion = document.getElementById(SELECTORS.suggestion);
+    this.refs.prompt = document.querySelector('.prompt-label');
+    this.updatePromptLabel();
   }
 
   startBootSequence() {
@@ -328,6 +331,16 @@ class TerminalLanding {
         return;
       }
 
+      if (command === 'name') {
+        this.handleNameCommand(argString);
+        return;
+      }
+
+      if (command === 'whoami') {
+        this.handleWhoAmI();
+        return;
+      }
+
       if (Object.prototype.hasOwnProperty.call(SIMPLE_CONTENT_COMMANDS, command)) {
         await this.handleContentCommand(command);
         return;
@@ -387,7 +400,7 @@ class TerminalLanding {
   appendCommandEcho(command) {
     const safe = escapeHTML(command);
     this.appendOutputBlock(
-      `<p><span class="prompt-label">${PROMPT_LABEL}</span> ${safe}</p>`,
+      `<p><span class="prompt-label">${this.buildPromptLabel()}</span> ${safe}</p>`,
     );
   }
 
@@ -648,6 +661,62 @@ class TerminalLanding {
     }
   }
 
+  handleNameCommand(argString) {
+    const next = argString.trim();
+    if (!next) {
+      this.appendSystemMessage(
+        '<p>Usage: <code>name &lt;username&gt;</code> &mdash; choose something worthy.</p>',
+      );
+      return;
+    }
+    const sanitized = this.sanitizeUsername(next);
+    if (!sanitized) {
+      this.appendError('That name is not acceptable. Use letters, numbers, dot, dash or underscore.');
+      return;
+    }
+    this.setUserName(sanitized);
+    this.appendSystemMessage(
+      `<p>You now walk as <strong>${escapeHTML(
+        this.currentUser,
+      )}</strong>. The terminal remembers.</p>`,
+    );
+  }
+
+  handleWhoAmI() {
+    if (this.currentUser === 'nobody') {
+      this.appendSystemMessage('<p>You are nobody. But you can become somebody.</p>');
+    } else {
+      this.appendSystemMessage(
+        `<p>You are <strong>${escapeHTML(
+          this.currentUser,
+        )}</strong> &mdash; the greatest of your kind.</p>`,
+      );
+    }
+  }
+
+  setUserName(name) {
+    this.currentUser = name || 'nobody';
+    this.updatePromptLabel();
+  }
+
+  sanitizeUsername(value) {
+    return value.trim().replace(/[^\w.-]/g, '');
+  }
+
+  updatePromptLabel() {
+    if (this.refs.prompt) {
+      this.refs.prompt.textContent = this.getPromptText();
+    }
+  }
+
+  getPromptText() {
+    return `${this.currentUser}@qult>`;
+  }
+
+  buildPromptLabel() {
+    return `${escapeHTML(this.currentUser)}@qult&gt;`;
+  }
+
   buildHelpMarkup() {
     return `
       <section class="content-block">
@@ -661,6 +730,8 @@ class TerminalLanding {
           <li><code>cat</code> — a cat is a cat</li>
           <li><code>ai</code> — future AI assistant (coming soon)</li>
           <li><code>contact</code> — guess...</li>
+          <li><code>name &lt;username&gt;</code> — claim your identity</li>
+          <li><code>whoami</code> — remind yourself who walks this terminal</li>
         </ul>
         <p class="muted">Tip: press Tab to autocomplete and use ↑/↓ for history.</p>
       </section>
