@@ -1077,6 +1077,34 @@ class LogoDrifter {
 }
 
 function init() {
+  // Prevent page scrolling
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.height = '100%';
+  
+  // Prevent scroll on wheel, touch, and keyboard
+  const preventScroll = (e) => {
+    const target = e.target;
+    const isTerminalOutput = target.closest('.terminal-output');
+    if (!isTerminalOutput) {
+      e.preventDefault();
+    }
+  };
+  
+  document.addEventListener('wheel', preventScroll, { passive: false });
+  document.addEventListener('touchmove', preventScroll, { passive: false });
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+      const target = e.target;
+      const isTerminalInput = target.closest('.terminal-input') || target.closest('.terminal-output');
+      if (!isTerminalInput) {
+        e.preventDefault();
+      }
+    }
+  });
+  
   const appRoot = document.getElementById('app');
   if (appRoot) {
     const landing = new TerminalLanding(appRoot);
