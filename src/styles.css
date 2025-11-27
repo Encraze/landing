@@ -161,15 +161,17 @@ main.app-shell {
 
 .scroll-indicator {
   position: absolute;
-  bottom: 3.5rem; /* Position above the input form (form height + padding) */
+  bottom: calc(1.25rem + 1.5rem + 2.25rem); 
   left: 1.5rem; /* Match terminal padding */
   right: 1.5rem; /* Match terminal padding */
   height: 3rem;
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(4, 5, 7, 0.5) 50%,
-    rgba(4, 5, 7, 0.9) 100%
+    rgba(4, 5, 7, 0.3) 30%,
+    rgba(4, 5, 7, 0.6) 60%,
+    rgba(4, 5, 7, 0.9) 85%,
+    rgba(4, 5, 7, 1) 100%
   );
   pointer-events: none;
   opacity: 0;
