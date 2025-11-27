@@ -38,8 +38,8 @@ Your content HTML should follow this structure:
     <li>List item 2</li>
   </ul>
   
-  <!-- Use <hr> tags to split content into pages -->
-  <hr>
+  <!-- Use <pb> tags to split content into pages -->
+  <pb>
   
   <h3>Next Section</h3>
   <p>More content...</p>
@@ -50,7 +50,7 @@ Your content HTML should follow this structure:
 
 To split content into multiple pages:
 
-- Add `<hr>` tags between sections
+- Add `<pb>` tags between sections (page-breaker)
 - The terminal will automatically create pagination controls
 - Users can navigate with left/right arrow keys or buttons
 - Press Escape or type to exit pagination mode
@@ -61,7 +61,7 @@ Example:
   <h2>Page 1</h2>
   <p>First page content...</p>
   
-  <hr>
+  <pb>
   
   <h2>Page 2</h2>
   <p>Second page content...</p>

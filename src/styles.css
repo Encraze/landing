@@ -44,7 +44,9 @@ body {
     radial-gradient(circle at 72% 35%, rgba(208, 148, 255, 0.2), transparent 68%),
     radial-gradient(circle at center, rgba(12, 8, 38, 0.9), rgba(3, 3, 12, 0.98)),
     linear-gradient(150deg, #080031 0%, #03001a 55%, #010106 100%);
-  background-attachment: fixed;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 body::before {
@@ -253,14 +255,21 @@ main.app-shell {
 .output-block code {
   margin: 0;
   line-height: 1.4;
+  flex-shrink: 0;
 }
 
 .output-block {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 0.0rem;
-  padding: 0.0rem 1.25rem;
+  padding: 0.0rem 1.25rem 0.5rem 1.25rem;
   border-left: 3px solid var(--accent);
   animation: slide-in 240ms ease;
+  min-height: fit-content;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .paged-block {
@@ -273,6 +282,16 @@ main.app-shell {
 
 .page-chunk.hidden {
   display: none !important;
+}
+
+.page-chunk h2,
+.page-chunk h3 {
+  margin-top: 0;
+}
+
+.page-chunk h2:first-child,
+.page-chunk h3:first-child {
+  margin-top: 0;
 }
 
 .page-nav {
@@ -331,7 +350,7 @@ main.app-shell {
 }
 
 code {
-  background: rgba(255, 255, 255, 0.50);
+  background: rgba(60, 60, 60, 0.30);
   color: #776af0;
   padding: 0.1rem 0.35rem;
   border-radius: 0.25rem;

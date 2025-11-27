@@ -548,7 +548,7 @@ class TerminalLanding {
 
   renderHtmlContent(html) {
     if (!html) return;
-    if (html.includes('<hr')) {
+    if (html.includes('<pb')) {
       this.renderPagedBlock(html);
     } else {
       const block = this.appendOutputBlock(html);
@@ -559,7 +559,7 @@ class TerminalLanding {
   renderPagedBlock(html) {
     if (!this.refs.output) return;
 
-    const rawSegments = html.split(/<hr\b[^>]*>/i);
+    const rawSegments = html.split(/<pb\b[^>]*>/i);
     const pages = rawSegments
       .map((segment) => segment.trim())
       .filter((segment) => segment.length > 0)
