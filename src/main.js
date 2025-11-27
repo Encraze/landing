@@ -16,6 +16,7 @@ const SIMPLE_CONTENT_COMMANDS = {
   cases: 'content/cases.html',
   contact: 'content/contact.html',
   creds: 'content/creds.html',
+  help: 'content/help.html',
 };
 
 const RESOURCE_TEMPLATES = {
@@ -41,6 +42,7 @@ const AUTOCOMPLETE_COMMANDS = Array.from(
     ...Object.keys(SIMPLE_CONTENT_COMMANDS),
     'help',
     'clear',
+    'echo',
     'svc',
     'case',
     'cat',
@@ -61,6 +63,7 @@ const RESTRICTED_COMMANDS = new Set([
   'cp',
   'touch',
   'mkdir',
+  'rmdir',
   'chmod',
   'chown',
   'nano',
@@ -72,6 +75,10 @@ const RESTRICTED_COMMANDS = new Set([
   'top',
   'ps',
   'kill',
+  'curl',
+  'wget',
+  'set',
+  'unset',
 ]);
 
 const ELEVATED_COMMANDS = new Set(['su', 'sudo']);
@@ -306,8 +313,8 @@ class TerminalLanding {
         return;
       }
 
-      if (command === 'help') {
-        this.appendOutputBlock(this.buildHelpMarkup());
+      if (command === 'echo') {
+        this.appendSystemMessage(`<p>${escapeHTML(argString)}</p>`);
         return;
       }
 
@@ -717,26 +724,6 @@ class TerminalLanding {
     return `${escapeHTML(this.currentUser)}@qult&gt;`;
   }
 
-  buildHelpMarkup() {
-    return `
-      <section class="content-block">
-        <h2>qult command reference</h2>
-        <ul class="command-list">
-          <li><code>help</code> — list available commands</li>
-          <li><code>clear</code> — clear screen</li>
-          <li><code>about</code> · <code>highlights</code> · <code>services</code> · <code>cases</code> · <code>creds</code> — various angles of Qult</li>
-          <li><code>svc &lt;name&gt;</code> — open a specific service detail</li>
-          <li><code>case &lt;name&gt;</code> — open a case study</li>
-          <li><code>cat</code> — a cat is a cat</li>
-          <li><code>ai</code> — future AI assistant (coming soon)</li>
-          <li><code>contact</code> — guess...</li>
-          <li><code>name &lt;username&gt;</code> — claim your identity</li>
-          <li><code>whoami</code> — remind yourself who walks this terminal</li>
-        </ul>
-        <p class="muted">Tip: press Tab to autocomplete and use ↑/↓ for history.</p>
-      </section>
-    `;
-  }
 
   slugify(value) {
     return value
@@ -942,17 +929,28 @@ class LogoDrifter {
   }
 
   positionForEdge(edge) {
-    const range = (min, max) => this.randomBetween(min, max);
+    // Helper for decimal ranges
+    const rangeDecimal = (min, max) => Math.random() * (max - min) + min;
+    const rangeInt = (min, max) => this.randomBetween(min, max);
+    // Logo is approximately 22vw/22vh (half-size ~11vw/11vh). To keep 25% visible (5.5vw/vh):
+    // - For top: bottom edge (y + 11vh) should be >= 5.5vh, so y >= -5.5vh
+    //   For 50% visible: y >= 0vh. Range: y: -5.5vh to 0vh
+    // - For bottom: top edge (y - 11vh) should be <= 94.5vh, so y <= 105.5vh
+    //   For 50% visible: y <= 100vh. Range: y: 100vh to 105.5vh
+    // - For left: right edge (x + 11vw) should be >= 5.5vw, so x >= -5.5vw
+    //   For 50% visible: x >= 0vw. Range: x: -5.5vw to 0vw
+    // - For right: left edge (x - 11vw) should be <= 94.5vw, so x <= 105.5vw
+    //   For 50% visible: x <= 100vw. Range: x: 100vw to 105.5vw
     switch (edge) {
       case 'top':
-        return { x: range(-10, 110), y: -55 };
+        return { x: rangeInt(-10, 110), y: rangeDecimal(-5.5, 0) };
       case 'bottom':
-        return { x: range(-10, 110), y: 105 };
+        return { x: rangeInt(-10, 110), y: rangeDecimal(100, 105.5) };
       case 'left':
-        return { x: -55, y: range(-10, 110) };
+        return { x: rangeDecimal(-5.5, 0), y: rangeInt(-10, 110) };
       case 'right':
       default:
-        return { x: 105, y: range(-10, 110) };
+        return { x: rangeDecimal(100, 105.5), y: rangeInt(-10, 110) };
     }
   }
 

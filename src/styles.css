@@ -223,6 +223,10 @@ main.app-shell {
   color: var(--muted);
 }
 
+.marked {
+  color: var(--accent);
+}
+
 .hidden {
   display: none !important;
 }
