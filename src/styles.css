@@ -16,6 +16,8 @@ html {
   position: fixed;
   top: 0;
   left: 0;
+  overscroll-behavior-y: auto; /* Allow pull-to-refresh */
+  overscroll-behavior-x: none; /* Prevent horizontal overscroll */
 }
 
 @font-face {
@@ -47,6 +49,7 @@ body {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center center;
+  overscroll-behavior-y: auto;
 }
 
 body::before {

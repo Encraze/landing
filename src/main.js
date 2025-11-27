@@ -1088,11 +1088,22 @@ function init() {
   const preventScroll = (e) => {
     const target = e.target;
     const isTerminalOutput = target.closest('.terminal-output');
+    
+    // Allow pull-to-refresh at the very top
+    if (window.scrollY === 0 && e.type === 'touchmove') {
+      const touch = e.touches[0];
+      const startY = touch.clientY;
+      // If scrolling down from top, allow it (pull-to-refresh)
+      if (startY > 50) { // Some threshold
+        return;
+      }
+    }
+    
     if (!isTerminalOutput) {
       e.preventDefault();
     }
   };
-  
+
   document.addEventListener('wheel', preventScroll, { passive: false });
   document.addEventListener('touchmove', preventScroll, { passive: false });
   document.addEventListener('keydown', (e) => {
