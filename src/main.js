@@ -912,7 +912,7 @@ class LogoDrifter {
   scheduleNextHop() {
     const nextEdge = this.pickNextEdge();
     const targetPos = this.positionForEdge(nextEdge);
-    const travelMs = this.randomBetween(90000, 120000);
+    const travelMs = this.randomBetween(1500, 2500);
     requestAnimationFrame(() => {
       this.node.style.transition = `transform ${travelMs}ms linear`;
       this.node.style.transform = this.buildTransform(targetPos);
@@ -932,25 +932,27 @@ class LogoDrifter {
     // Helper for decimal ranges
     const rangeDecimal = (min, max) => Math.random() * (max - min) + min;
     const rangeInt = (min, max) => this.randomBetween(min, max);
-    // Logo is approximately 22vw/22vh (half-size ~11vw/11vh). To keep 25% visible (5.5vw/vh):
-    // - For top: bottom edge (y + 11vh) should be >= 5.5vh, so y >= -5.5vh
-    //   For 50% visible: y >= 0vh. Range: y: -5.5vh to 0vh
-    // - For bottom: top edge (y - 11vh) should be <= 94.5vh, so y <= 105.5vh
-    //   For 50% visible: y <= 100vh. Range: y: 100vh to 105.5vh
-    // - For left: right edge (x + 11vw) should be >= 5.5vw, so x >= -5.5vw
-    //   For 50% visible: x >= 0vw. Range: x: -5.5vw to 0vw
-    // - For right: left edge (x - 11vw) should be <= 94.5vw, so x <= 105.5vw
-    //   For 50% visible: x <= 100vw. Range: x: 100vw to 105.5vw
+    // switch (edge) {
+    //   case 'top':
+    //     return { x: rangeInt(-50, 50), y: rangeDecimal(-80, -50) };
+    //   case 'bottom':
+    //     return { x: rangeInt(0, 100), y: rangeDecimal(50, 66) };
+    //   case 'left':
+    //     return { x: rangeDecimal(-22, 0), y: rangeInt(-20, 80) };
+    //   case 'right':
+    //   default:
+    //     return { x: rangeDecimal(30, 46), y: rangeInt(-20, 80) };
+    // }
     switch (edge) {
       case 'top':
-        return { x: rangeInt(-10, 110), y: rangeDecimal(-5.5, 0) };
+        return { x: rangeInt(-40, 50), y: rangeDecimal(-120, -100) };
       case 'bottom':
-        return { x: rangeInt(-10, 110), y: rangeDecimal(100, 105.5) };
+        return { x: rangeInt(-40, 50), y: rangeDecimal(40, 60) };
       case 'left':
-        return { x: rangeDecimal(-5.5, 0), y: rangeInt(-10, 110) };
+        return { x: rangeInt(-60, -60), y: rangeDecimal(-60, 30) };
       case 'right':
       default:
-        return { x: rangeDecimal(100, 105.5), y: rangeInt(-10, 110) };
+        return { x: rangeInt(75, 75), y: rangeDecimal(-60, 30) };
     }
   }
 

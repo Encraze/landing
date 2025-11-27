@@ -54,16 +54,16 @@ main.app-shell {
 
 .logo-satellite {
   position: absolute;
-  width: clamp(180px, 22vw, 280px);
-  opacity: 0.08;
+  width: clamp(800px, 88vw, 1200px);
+  opacity: 0.07;
 }
 
 .logo-satellite img {
-  width: 400%;
+  width: 100%;
   height: auto;
   mix-blend-mode: screen;
   filter: grayscale(0.2) contrast(1.2) brightness(1.1);
-  animation: spin 200s linear infinite;
+  animation: spin 300s linear infinite;
 }
 
 .particle-field {
