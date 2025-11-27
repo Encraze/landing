@@ -9,7 +9,7 @@ const SELECTORS = {
 };
 
 const MOTD_PATH = 'content/motd.html';
-const PROMPT_LABEL = 'user@qult:>';
+const PROMPT_LABEL = 'nobody@qult>';
 
 const SIMPLE_CONTENT_COMMANDS = {
   about: 'content/about.html',
@@ -25,7 +25,17 @@ const RESOURCE_TEMPLATES = {
   case: (slug) => `content/case-${slug}.html`,
 };
 
-const DEFAULT_SERVICE_SLUGS = ['sample'];
+const DEFAULT_SERVICE_SLUGS = [
+  'security',
+  'perf',
+  'avail',
+  'strategy',
+  'people',
+  'proc',
+  'infra',
+  'cost',
+  'ai',
+];
 const DEFAULT_CASE_SLUGS = ['sample'];
 
 const AUTOCOMPLETE_COMMANDS = Array.from(
