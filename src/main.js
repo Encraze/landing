@@ -912,7 +912,7 @@ class LogoDrifter {
   scheduleNextHop() {
     const nextEdge = this.pickNextEdge();
     const targetPos = this.positionForEdge(nextEdge);
-    const travelMs = this.randomBetween(1500, 2500);
+    const travelMs = this.randomBetween(90000, 120000);
     requestAnimationFrame(() => {
       this.node.style.transition = `transform ${travelMs}ms linear`;
       this.node.style.transform = this.buildTransform(targetPos);
