@@ -164,6 +164,49 @@ main.app-shell {
   animation: slide-in 240ms ease;
 }
 
+.paged-block {
+  padding-bottom: 0.75rem;
+}
+
+.paged-body {
+  min-height: 0;
+}
+
+.page-chunk.hidden {
+  display: none !important;
+}
+
+.page-nav {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.page-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.page-btn[disabled] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.page-counter {
+  min-width: 3.2rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .output-block.is-error {
   border-left-color: #ff6b6b;
 }

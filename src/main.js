@@ -105,6 +105,10 @@ class TerminalLanding {
     this.awaitingPassword = false;
     this.pendingSuggestionValue = null;
     this.pendingSuggestionCursor = null;
+    this.inPageNavMode = false;
+    this.activePagedBlock = null;
+    this.pageNavIndex = 0;
+    this.pageNavCount = 0;
     this.handlers = {
       submit: this.handleSubmit.bind(this),
       keydown: this.handleKeyDown.bind(this),
@@ -227,6 +231,15 @@ class TerminalLanding {
   }
 
   handleKeyDown(event) {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      if (this.inPageNavMode && this.activePagedBlock) {
+        event.preventDefault();
+        const direction = event.key === 'ArrowRight' ? 1 : -1;
+        this.stepPage(direction);
+        return;
+      }
+      return;
+    }
     if (event.key === 'Tab') {
       event.preventDefault();
       this.handleAutocomplete();
@@ -248,10 +261,14 @@ class TerminalLanding {
         this.historyIndex = this.history.length;
         this.clearSuggestion();
       }
+      this.inPageNavMode = false;
+      this.activePagedBlock = null;
     }
   }
 
   handleInputChange() {
+    this.inPageNavMode = false;
+    this.activePagedBlock = null;
     this.updateSuggestionState();
   }
 
@@ -429,7 +446,7 @@ class TerminalLanding {
     if (!path) return;
     try {
       const html = await this.loadFragment(path);
-      this.appendOutputBlock(html);
+      this.renderHtmlContent(html);
     } catch (error) {
       console.warn(error);
       this.appendError('Content is unavailable right now.');
@@ -451,7 +468,7 @@ class TerminalLanding {
     const path = template(slug);
     try {
       const html = await this.loadFragment(path);
-      this.appendOutputBlock(html);
+      this.renderHtmlContent(html);
     } catch (error) {
       if (error?.code === 'not-found') {
         this.appendError('resource not found.');
@@ -484,6 +501,137 @@ class TerminalLanding {
           { once: true },
         );
       }
+    }
+  }
+
+  renderHtmlContent(html) {
+    if (!html) return;
+    if (html.includes('<hr')) {
+      this.renderPagedBlock(html);
+    } else {
+      this.appendOutputBlock(html);
+    }
+  }
+
+  renderPagedBlock(html) {
+    if (!this.refs.output) return;
+
+    const rawSegments = html.split(/<hr\b[^>]*>/i);
+    const pages = rawSegments
+      .map((segment) => segment.trim())
+      .filter((segment) => segment.length > 0)
+      .map((segment) => {
+        const page = document.createElement('div');
+        page.className = 'page-chunk';
+        page.innerHTML = segment;
+        return page;
+      });
+
+    if (pages.length <= 1) {
+      this.appendOutputBlock(html);
+      return;
+    }
+
+    const block = document.createElement('article');
+    block.className = 'output-block paged-block';
+
+    const body = document.createElement('div');
+    body.className = 'paged-body';
+    pages.forEach((page, index) => {
+      if (index !== 0) {
+        page.classList.add('hidden');
+      }
+      page.dataset.pageIndex = String(index);
+      body.appendChild(page);
+    });
+
+    const nav = document.createElement('div');
+    nav.className = 'page-nav';
+    nav.innerHTML = `
+      <button type="button" class="page-btn prev" data-role="prev">&larr;</button>
+      <span class="page-counter" data-role="counter">1 / ${pages.length}</span>
+      <button type="button" class="page-btn next" data-role="next">&rarr;</button>
+    `;
+
+    block.dataset.pageIndex = '0';
+    block.dataset.pageCount = String(pages.length);
+
+    block.appendChild(body);
+    block.appendChild(nav);
+    this.refs.output.appendChild(block);
+
+    const viewportHeight = this.refs.output?.clientHeight || 0;
+    if (viewportHeight) {
+      const navHeight = nav.offsetHeight || 0;
+      const verticalPadding = 16; // approx extra padding/margins
+      const bodyMin = Math.max(
+        0,
+        viewportHeight - navHeight - verticalPadding,
+      );
+      block.style.minHeight = `${viewportHeight}px`;
+      body.style.minHeight = `${bodyMin}px`;
+    }
+
+    this.scrollToBottom();
+
+    const prevBtn = nav.querySelector('[data-role="prev"]');
+    const nextBtn = nav.querySelector('[data-role="next"]');
+
+    prevBtn?.addEventListener('click', () => {
+      this.enterPageNav(block);
+      this.stepPage(-1);
+    });
+    nextBtn?.addEventListener('click', () => {
+      this.enterPageNav(block);
+      this.stepPage(1);
+    });
+
+    this.enterPageNav(block);
+    this.updatePageNavigation(block);
+  }
+
+  enterPageNav(block) {
+    this.inPageNavMode = true;
+    this.activePagedBlock = block;
+    this.pageNavIndex = Number(block.dataset.pageIndex) || 0;
+    this.pageNavCount = Number(block.dataset.pageCount) || 0;
+  }
+
+  stepPage(direction) {
+    if (!this.inPageNavMode || !this.activePagedBlock) return;
+    const count = this.pageNavCount;
+    if (!count) return;
+    let index = this.pageNavIndex + direction;
+    index = Math.max(0, Math.min(count - 1, index));
+    if (index === this.pageNavIndex) return;
+    this.pageNavIndex = index;
+    this.activePagedBlock.dataset.pageIndex = String(index);
+    this.updatePageNavigation(this.activePagedBlock);
+    this.scrollToBottom();
+  }
+
+  updatePageNavigation(block) {
+    const count = Number(block.dataset.pageCount) || 0;
+    const current = Number(block.dataset.pageIndex) || 0;
+    const pages = block.querySelectorAll('.page-chunk');
+    pages.forEach((page, idx) => {
+      if (idx === current) {
+        page.classList.remove('hidden');
+      } else {
+        page.classList.add('hidden');
+      }
+    });
+    const counter = block.querySelector('[data-role="counter"]');
+    if (counter) {
+      counter.textContent = `${current + 1} / ${count}`;
+    }
+    const prevBtn = block.querySelector('[data-role="prev"]');
+    const nextBtn = block.querySelector('[data-role="next"]');
+    if (prevBtn) {
+      prevBtn.disabled = current === 0;
+    }
+    if (nextBtn) {
+      nextBtn.disabled = current >= count - 1;
     }
   }
 
