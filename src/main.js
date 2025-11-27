@@ -154,6 +154,7 @@ class TerminalLanding {
     this.refs.suggestion = document.getElementById(SELECTORS.suggestion);
     this.refs.prompt = document.querySelector('.prompt-label');
     this.updatePromptLabel();
+    this.refs.scrollIndicator = null;
   }
 
   startBootSequence() {
@@ -220,6 +221,7 @@ class TerminalLanding {
     this.refs.input.addEventListener('keydown', this.handlers.keydown);
     this.refs.input.addEventListener('input', this.handlers.input);
     this.refs.terminal?.addEventListener('click', this.handlers.terminalClick);
+    this.refs.output?.addEventListener('scroll', () => this.updateScrollIndicator());
     this.setInputMode('text');
     this.updateSuggestionState();
     this.inputBound = true;
@@ -426,6 +428,10 @@ class TerminalLanding {
     if (options.autoScroll !== false && !hasImages) {
       this.scrollToBottom();
     }
+    // Update scroll indicator after content is added
+    requestAnimationFrame(() => {
+      this.updateScrollIndicator();
+    });
     return block;
   }
 
@@ -546,7 +552,7 @@ class TerminalLanding {
       this.renderPagedBlock(html);
     } else {
       const block = this.appendOutputBlock(html);
-      this.waitForImagesAndScroll(block);
+      this.waitForImagesAndScrollToTop(block);
     }
   }
 
@@ -611,6 +617,10 @@ class TerminalLanding {
 
     this.scrollToBottom();
     this.waitForImagesAndScroll(block);
+    // Update scroll indicator after paged block is rendered
+    requestAnimationFrame(() => {
+      this.updateScrollIndicator();
+    });
 
     const prevBtn = nav.querySelector('[data-role="prev"]');
     const nextBtn = nav.querySelector('[data-role="next"]');
@@ -865,6 +875,38 @@ class TerminalLanding {
   scrollToBottom() {
     if (!this.refs.output) return;
     this.refs.output.scrollTop = this.refs.output.scrollHeight;
+    requestAnimationFrame(() => {
+      this.updateScrollIndicator();
+    });
+  }
+
+  updateScrollIndicator() {
+    if (!this.refs.output || !this.refs.terminal) return;
+    const output = this.refs.output;
+    
+    // Create indicator if it doesn't exist - append to terminal, not output
+    if (!this.refs.scrollIndicator) {
+      const indicator = document.createElement('div');
+      indicator.className = 'scroll-indicator';
+      indicator.setAttribute('aria-hidden', 'true');
+      this.refs.terminal.appendChild(indicator);
+      this.refs.scrollIndicator = indicator;
+    }
+    
+    // Check if there's more content below current scroll position
+    const scrollHeight = output.scrollHeight;
+    const clientHeight = output.clientHeight;
+    const scrollTop = output.scrollTop;
+    const threshold = 5; // Small threshold to account for rounding
+    
+    const hasMoreContent = scrollHeight > clientHeight && 
+                          scrollTop < scrollHeight - clientHeight - threshold;
+    
+    if (hasMoreContent) {
+      this.refs.scrollIndicator.classList.add('is-visible');
+    } else {
+      this.refs.scrollIndicator.classList.remove('is-visible');
+    }
   }
 
   waitForImagesAndScroll(block) {
@@ -891,6 +933,44 @@ class TerminalLanding {
         img.addEventListener('load', checkAndScroll, { once: true });
         img.addEventListener('error', checkAndScroll, { once: true });
       }
+    });
+  }
+
+  waitForImagesAndScrollToTop(block) {
+    if (!block) return;
+    const images = block.querySelectorAll('img');
+    if (images.length === 0) {
+      this.scrollToBlockTop(block);
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalImages = images.length;
+    const checkAndScroll = () => {
+      loadedCount += 1;
+      if (loadedCount >= totalImages) {
+        this.scrollToBlockTop(block);
+      }
+    };
+
+    images.forEach((img) => {
+      if (img.complete) {
+        checkAndScroll();
+      } else {
+        img.addEventListener('load', checkAndScroll, { once: true });
+        img.addEventListener('error', checkAndScroll, { once: true });
+      }
+    });
+  }
+
+  scrollToBlockTop(block) {
+    if (!this.refs.output || !block) return;
+    // Scroll to the top of the new block
+    const blockTop = block.offsetTop;
+    this.refs.output.scrollTop = blockTop;
+    // Check if content overflows and show scroll indicator after layout
+    requestAnimationFrame(() => {
+      this.updateScrollIndicator();
     });
   }
 

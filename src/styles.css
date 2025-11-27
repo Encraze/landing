@@ -127,6 +127,7 @@ main.app-shell {
   transform: translateY(24px);
   pointer-events: none;
   transition: opacity 250ms ease, transform 250ms ease;
+  position: relative;
 }
 
 .terminal.is-active {
@@ -150,11 +151,57 @@ main.app-shell {
   flex-direction: column;
   gap: 0.5rem;
   scrollbar-width: none;
+  position: relative;
 }
 
 .terminal-output::-webkit-scrollbar {
   width: 0;
   height: 0;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 3.5rem; /* Position above the input form (form height + padding) */
+  left: 1.5rem; /* Match terminal padding */
+  right: 1.5rem; /* Match terminal padding */
+  height: 3rem;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(4, 5, 7, 0.5) 50%,
+    rgba(4, 5, 7, 0.9) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+  z-index: 10;
+}
+
+.scroll-indicator.is-visible {
+  opacity: 1;
+}
+
+.scroll-indicator::after {
+  content: '↓';
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(97, 255, 168, 0.6);
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 .output-block p,
