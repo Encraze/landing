@@ -287,16 +287,6 @@ main.app-shell {
   display: none !important;
 }
 
-.page-chunk h2,
-.page-chunk h3 {
-  margin-top: 0;
-}
-
-.page-chunk h2:first-child,
-.page-chunk h3:first-child {
-  margin-top: 0;
-}
-
 .page-nav {
   margin-top: 0.75rem;
   display: flex;
@@ -364,9 +354,7 @@ code {
   margin: 0;
 }
 
-.content-block h2 {
-  margin-top: 0;
-}
+
 
 .command-list {
   list-style: none;
