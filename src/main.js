@@ -139,14 +139,17 @@ class TerminalLanding {
   startBootSequence() {
     const lines = this.generateBootLines();
     let index = 0;
-    this.bootTimer = setInterval(() => {
+    const emitLine = () => {
       this.appendBootLine(lines[index]);
       index += 1;
       if (index >= lines.length) {
-        clearInterval(this.bootTimer);
-        setTimeout(() => this.completeBoot(), 500);
+        setTimeout(() => this.completeBoot(), 800);
+        return;
       }
-    }, 500);
+      const delay = this.randomBetween(200, 500);
+      this.bootTimer = setTimeout(emitLine, delay);
+    };
+    emitLine();
   }
 
   generateBootLines() {
@@ -779,6 +782,10 @@ class TerminalLanding {
     return new Promise((resolve) => {
       setTimeout(resolve, duration);
     });
+  }
+
+  randomBetween(min, max) {
+    return Math.random() * (max - min) + min;
   }
 
   scrollToBottom() {

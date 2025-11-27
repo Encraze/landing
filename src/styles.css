@@ -17,10 +17,10 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   background-image:
-    radial-gradient(circle at 38% 28%, rgba(88, 94, 255, 0.14), transparent 72%),
-    radial-gradient(circle at 72% 35%, rgba(177, 102, 255, 0.1), transparent 68%),
-    radial-gradient(circle at center, rgba(6, 4, 22, 0.97), rgba(0, 0, 0, 1)),
-    linear-gradient(150deg, #030016 0%, #01000a 55%, #000000 100%);
+    radial-gradient(circle at 38% 28%, rgba(120, 132, 255, 0.28), transparent 72%),
+    radial-gradient(circle at 72% 35%, rgba(208, 148, 255, 0.2), transparent 68%),
+    radial-gradient(circle at center, rgba(12, 8, 38, 0.9), rgba(3, 3, 12, 0.98)),
+    linear-gradient(150deg, #080031 0%, #03001a 55%, #010106 100%);
   background-attachment: fixed;
 }
 
@@ -98,7 +98,7 @@ main.app-shell {
 .boot-log {
   margin: 0;
   font: inherit;
-  color: var(--muted);
+  color: #1c9f63;
   white-space: pre-wrap;
   min-height: 12rem;
 }
@@ -251,6 +251,26 @@ code {
 
 .command-list li {
   margin-bottom: 0.35rem;
+}
+
+.highlights-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.highlight {
+  flex: 1;
+  min-width: min(260px, 100%);
+}
+
+.highlight h4 {
+  margin: 0 0 0.2rem;
+}
+
+.highlight p {
+  margin: 0.15rem 0;
 }
 
 .cat-block {
