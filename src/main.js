@@ -644,12 +644,13 @@ class TerminalLanding {
         <h2>qult command reference</h2>
         <ul class="command-list">
           <li><code>help</code> — list available commands</li>
-          <li><code>clear</code> — wipe the terminal output</li>
-          <li><code>about</code> · <code>highlights</code> · <code>services</code> · <code>cases</code> · <code>contact</code> · <code>creds</code> — load overview panels</li>
+          <li><code>clear</code> — clear screen</li>
+          <li><code>about</code> · <code>highlights</code> · <code>services</code> · <code>cases</code> · <code>creds</code> — various angles of Qult</li>
           <li><code>svc &lt;name&gt;</code> — open a specific service detail</li>
           <li><code>case &lt;name&gt;</code> — open a case study</li>
           <li><code>cat</code> — a cat is a cat</li>
           <li><code>ai</code> — future AI assistant (coming soon)</li>
+          <li><code>contact</code> — guess...</li>
         </ul>
         <p class="muted">Tip: press Tab to autocomplete and use ↑/↓ for history.</p>
       </section>

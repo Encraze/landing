@@ -273,6 +273,18 @@ code {
   margin: 0.15rem 0;
 }
 
+.badge-strip {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.4rem 0;
+}
+
+.badge-strip img {
+  width: 82px;
+  height: auto;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+}
+
 .cat-block {
   margin: 0;
   text-align: left;
