@@ -1,0 +1,211 @@
+:root {
+  --bg: #040507;
+  --fg: #f4f4f2;
+  --accent: #61ffa8;
+  --muted: #8d9aa4;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('../assets/fonts/SourceCodeVF-Upright.otf.woff2') format('woff2'),
+       url('../assets/fonts/SourceCodeVF-Upright.otf.woff') format('woff');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  background-color: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Source Code Pro', 'Space Mono', Consolas, 'SFMono-Regular', 'Roboto Mono', Menlo, Monaco, monospace;
+  line-height: 1.6;
+  color: var(--fg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 38% 28%, rgba(120, 132, 255, 0.28), transparent 72%),
+    radial-gradient(circle at 72% 35%, rgba(208, 148, 255, 0.2), transparent 68%),
+    radial-gradient(circle at center, rgba(12, 8, 38, 0.9), rgba(3, 3, 12, 0.98)),
+    linear-gradient(150deg, #080031 0%, #03001a 55%, #010106 100%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.background-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.logo-satellite {
+  position: absolute;
+  width: clamp(800px, 88vw, 1200px);
+  max-width: 100vw;
+  opacity: 0.07;
+  overflow: hidden;
+}
+
+.logo-satellite img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: screen;
+  filter: grayscale(0.2) contrast(1.2) brightness(1.1);
+  animation: spin 300s linear infinite;
+}
+
+.particle-field {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 160px 160px;
+  opacity: 0.25;
+  animation: drift 60s linear infinite;
+}
+
+.doc-shell {
+  position: relative;
+  z-index: 1;
+  padding: 2rem 1.5rem;
+}
+
+.doc {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 2rem 2.25rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: rgba(4, 5, 7, 0.52);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.25rem;
+  color: var(--accent);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+h3 {
+  font-size: 1.02rem;
+  margin: 1.4rem 0 0.4rem;
+  color: var(--accent);
+}
+
+p,
+li {
+  font-size: 0.95rem;
+}
+
+ul {
+  padding-left: 1.25rem;
+}
+
+li {
+  margin-bottom: 0.4rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+.card,
+.toc {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--accent);
+  padding: 0.9rem 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.card p {
+  margin: 0;
+}
+
+.toc ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.toc a {
+  text-decoration: none;
+}
+
+.toc a:hover {
+  text-decoration: underline;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.88rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .doc-shell {
+    padding: 1rem 0.75rem;
+  }
+
+  .doc {
+    padding: 1.25rem 1.1rem 1.75rem;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-160px, -160px, 0); }
+}
