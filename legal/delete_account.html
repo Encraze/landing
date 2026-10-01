@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delete Your Account</title>
+<link rel="stylesheet" href="delete_account.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="background-layer" aria-hidden="true">
+  <div class="logo-satellite">
+    <img src="../assets/logo.png" alt="" decoding="async">
+  </div>
+  <div class="particle-field"></div>
+</div>
+<main class="doc-shell">
+<article class="doc">
+
+<h1>Delete Your Account</h1>
+<p class="subtitle">Request deletion of your account and data, no app install or sign-in required.</p>
+
+<div class="card">
+  <p>Deleting your account removes your learning progress, saved hints, linked
+    sign-in identities, and notification tokens immediately.</p>
+  <p>Your account record is deactivated right away and permanently purged
+    from our systems within 30 days, which we keep briefly to prevent fraud
+    and to recover a request made in error.</p>
+</div>
+
+<h2>How it works</h2>
+<ol>
+  <li>Choose your app and enter the email address on your account.</li>
+  <li>We email a 6-digit confirmation code to that address, valid for 5 minutes.</li>
+  <li>Enter the code here to confirm. Your account and data are deleted immediately.</li>
+</ol>
+
+<form id="request-step" class="step">
+  <label class="field">
+    <span>App</span>
+    <select id="app-select" required></select>
+  </label>
+  <label class="field">
+    <span>Account email</span>
+    <input id="email-input" type="email" required autocomplete="email" placeholder="you@example.com">
+  </label>
+  <button class="btn" type="submit" id="request-button">Request deletion code</button>
+</form>
+
+<div id="confirm-step" class="step" hidden>
+  <p class="status-message" id="sent-message">
+    The confirmation code has been sent to your email.
+  </p>
+  <p class="timer" id="timer">05:00</p>
+  <div class="otp-row" id="otp-row">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 1">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5">
+    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6">
+  </div>
+  <p class="status-message" id="confirm-status"></p>
+  <button class="btn-link" id="resend-button" type="button" disabled>Resend code</button>
+</div>
+
+<div id="success-step" class="step success-panel" hidden>
+  <h2>Deletion request sent</h2>
+  <p>A deletion request successfully sent. You will get a notification when your account is deleted.</p>
+</div>
+
+<footer>
+  Having trouble? Contact <a href="mailto:gengo.admin@gmail.com">gengo.admin@gmail.com</a>.
+</footer>
+
+</article>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var APPS = {
+    gengo: {
+      label: "Gengo",
+      apiBase: "https://japmind-api-oilmgb3zza-ez.a.run.app/v1"
+    }
+  };
+
+  var CODE_TTL_SECONDS = 5 * 60;
+
+  var appSelect = document.getElementById("app-select");
+  var emailInput = document.getElementById("email-input");
+  var requestStep = document.getElementById("request-step");
+  var requestButton = document.getElementById("request-button");
+  var confirmStep = document.getElementById("confirm-step");
+  var sentMessage = document.getElementById("sent-message");
+  var timerEl = document.getElementById("timer");
+  var otpRow = document.getElementById("otp-row");
+  var otpInputs = Array.prototype.slice.call(otpRow.querySelectorAll("input"));
+  var confirmStatus = document.getElementById("confirm-status");
+  var resendButton = document.getElementById("resend-button");
+  var successStep = document.getElementById("success-step");
+
+  var state = { email: "", appKey: "", ticketPending: false };
+  var timerHandle = null;
+  var secondsLeft = CODE_TTL_SECONDS;
+
+  Object.keys(APPS).forEach(function (key) {
+    var option = document.createElement("option");
+    option.value = key;
+    option.textContent = APPS[key].label;
+    appSelect.appendChild(option);
+  });
+
+  function currentApp() {
+    return APPS[appSelect.value];
+  }
+
+  function formatTime(totalSeconds) {
+    var minutes = Math.floor(totalSeconds / 60);
+    var seconds = totalSeconds % 60;
+    return (
+      String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0")
+    );
+  }
+
+  function stopTimer() {
+    if (timerHandle !== null) {
+      clearInterval(timerHandle);
+      timerHandle = null;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    secondsLeft = CODE_TTL_SECONDS;
+    timerEl.textContent = formatTime(secondsLeft);
+    resendButton.disabled = true;
+    timerHandle = setInterval(function () {
+      secondsLeft -= 1;
+      if (secondsLeft <= 0) {
+        stopTimer();
+        timerEl.textContent = "00:00";
+        setOtpDisabled(true);
+        confirmStatus.textContent = "Code expired, request a new one.";
+        confirmStatus.className = "status-message error";
+        resendButton.disabled = false;
+        return;
+      }
+      timerEl.textContent = formatTime(secondsLeft);
+    }, 1000);
+  }
+
+  function setOtpDisabled(disabled) {
+    otpInputs.forEach(function (input) {
+      input.disabled = disabled;
+    });
+  }
+
+  function clearOtp() {
+    otpInputs.forEach(function (input) {
+      input.value = "";
+    });
+    otpInputs[0].focus();
+  }
+
+  function otpCode() {
+    return otpInputs.map(function (input) { return input.value; }).join("");
+  }
+
+  async function requestCode(email, appKey) {
+    var app = APPS[appKey];
+    try {
+      await fetch(app.apiBase + "/auth/account-deletion/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+      });
+    } catch (error) {
+      return false;
+    }
+    return true;
+  }
+
+  requestStep.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    var email = emailInput.value.trim();
+    if (!email) {
+      return;
+    }
+    requestButton.disabled = true;
+    var ok = await requestCode(email, appSelect.value);
+    requestButton.disabled = false;
+    if (!ok) {
+      sentMessage.textContent =
+        "Could not reach the server. Check your connection and try again.";
+      sentMessage.className = "status-message error";
+      return;
+    }
+    state.email = email;
+    state.appKey = appSelect.value;
+    sentMessage.textContent = "The confirmation code has been sent to your email.";
+    sentMessage.className = "status-message";
+    confirmStatus.textContent = "";
+    confirmStatus.className = "status-message";
+    requestStep.hidden = true;
+    confirmStep.hidden = false;
+    setOtpDisabled(false);
+    clearOtp();
+    startTimer();
+  });
+
+  resendButton.addEventListener("click", async function () {
+    resendButton.disabled = true;
+    confirmStatus.textContent = "";
+    var ok = await requestCode(state.email, state.appKey);
+    if (!ok) {
+      confirmStatus.textContent =
+        "Could not reach the server. Check your connection and try again.";
+      confirmStatus.className = "status-message error";
+      resendButton.disabled = false;
+      return;
+    }
+    sentMessage.textContent = "A new confirmation code has been sent to your email.";
+    sentMessage.className = "status-message";
+    setOtpDisabled(false);
+    clearOtp();
+    startTimer();
+  });
+
+  otpInputs.forEach(function (input, index) {
+    input.addEventListener("input", function () {
+      input.value = input.value.replace(/[^0-9]/g, "").slice(0, 1);
+      if (input.value && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
+      if (otpCode().length === otpInputs.length) {
+        submitCode();
+      }
+    });
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Backspace" && !input.value && index > 0) {
+        otpInputs[index - 1].focus();
+        otpInputs[index - 1].value = "";
+        event.preventDefault();
+      }
+    });
+
+    input.addEventListener("paste", function (event) {
+      var pasted = (event.clipboardData || window.clipboardData)
+        .getData("text")
+        .replace(/[^0-9]/g, "");
+      if (!pasted) {
+        return;
+      }
+      event.preventDefault();
+      for (var i = 0; i < otpInputs.length; i += 1) {
+        otpInputs[i].value = pasted[i] || "";
+      }
+      var lastFilled = Math.min(pasted.length, otpInputs.length) - 1;
+      if (lastFilled >= 0) {
+        otpInputs[lastFilled].focus();
+      }
+      if (otpCode().length === otpInputs.length) {
+        submitCode();
+      }
+    });
+  });
+
+  async function submitCode() {
+    if (state.ticketPending) {
+      return;
+    }
+    state.ticketPending = true;
+    setOtpDisabled(true);
+    confirmStatus.textContent = "Confirming...";
+    confirmStatus.className = "status-message";
+    var app = APPS[state.appKey];
+    var code = otpCode();
+
+    try {
+      var verifyResponse = await fetch(app.apiBase + "/auth/account-deletion/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: state.email, code: code })
+      });
+      if (!verifyResponse.ok) {
+        var verifyBody = await verifyResponse.json().catch(function () { return {}; });
+        throw new Error(verifyBody.detail || "wrong code, request a new one");
+      }
+      var verifyBody2 = await verifyResponse.json();
+
+      var confirmResponse = await fetch(app.apiBase + "/auth/account-deletion/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticket: verifyBody2.ticket })
+      });
+      if (!confirmResponse.ok) {
+        throw new Error("could not complete deletion, request a new code");
+      }
+
+      stopTimer();
+      confirmStep.hidden = true;
+      successStep.hidden = false;
+    } catch (error) {
+      confirmStatus.textContent = error.message;
+      confirmStatus.className = "status-message error";
+      clearOtp();
+      setOtpDisabled(secondsLeft <= 0);
+      resendButton.disabled = false;
+    } finally {
+      state.ticketPending = false;
+    }
+  }
+})();
+</script>
+</body>
+</html>
